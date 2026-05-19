@@ -13,6 +13,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+try:
+    import truststore
+
+    truststore.inject_into_ssl()
+except Exception:
+    pass
+
 from openai import AsyncOpenAI
 from agents import OpenAIChatCompletionsModel
 
