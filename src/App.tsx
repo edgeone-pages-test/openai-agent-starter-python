@@ -1,6 +1,6 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import type { Message, ToolLampState } from './types';
-import { sendMessageStream } from './api';
+import { fetchConversationHistory, sendMessageStream, stopAgent } from './api';
 import ToolIndicators from './components/ToolIndicators';
 import ChatWindow from './components/ChatWindow';
 import ChatInput from './components/ChatInput';
@@ -14,13 +14,56 @@ const INITIAL_LAMPS: ToolLampState[] = [
   { id: 'text_statistics',     label: '文本统计', icon: '📊', active: false, animKey: 0 },
 ];
 
+const CONVERSATION_ID_STORAGE_KEY = 'eo_conversation_id';
+
+function getOrCreateConversationId(): string {
+  const cached = localStorage.getItem(CONVERSATION_ID_STORAGE_KEY);
+  if (cached) return cached;
+
+  const conversationId = crypto.randomUUID();
+  localStorage.setItem(CONVERSATION_ID_STORAGE_KEY, conversationId);
+  return conversationId;
+}
+
 export default function App() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [lamps, setLamps]       = useState<ToolLampState[]>(INITIAL_LAMPS);
   const [loading, setLoading]   = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(true);
 
-  // 用 ref 持有当前助手消息 id，方便在回调中追加文本
   const botMsgIdRef = useRef<string>('');
+  const abortCtrlRef = useRef<AbortController | null>(null);
+  const conversationIdRef = useRef<string>(getOrCreateConversationId());
+  const historyFetchedRef = useRef(false);
+
+  useEffect(() => {
+    if (historyFetchedRef.current) return;
+    historyFetchedRef.current = true;
+
+    fetchConversationHistory(conversationIdRef.current).then(history => {
+      if (history.length > 0) {
+        setMessages(history);
+      }
+    }).finally(() => {
+      setHistoryLoading(false);
+    });
+  }, []);
+
+  /** Update the current bot message's content via an updater function. */
+  const updateBotMessage = useCallback((updater: (content: string) => string) => {
+    setMessages(prev =>
+      prev.map(m =>
+        m.id === botMsgIdRef.current
+          ? { ...m, content: updater(m.content) }
+          : m
+      )
+    );
+  }, []);
+
+  const finishStream = useCallback(() => {
+    setLoading(false);
+    abortCtrlRef.current = null;
+  }, []);
 
   const handleSend = useCallback(async (text: string) => {
     const userMsg: Message = {
@@ -30,7 +73,6 @@ export default function App() {
       timestamp: Date.now(),
     };
 
-    // 预创建一条空的助手消息，后续逐字追加
     const botMsgId = crypto.randomUUID();
     botMsgIdRef.current = botMsgId;
     const botMsg: Message = {
@@ -43,20 +85,12 @@ export default function App() {
     setMessages(prev => [...prev, userMsg, botMsg]);
     setLoading(true);
 
-    sendMessageStream(text, {
+    const ctrl = sendMessageStream(text, {
       onTextDelta(delta) {
-        // 逐字追加到助手消息
-        setMessages(prev =>
-          prev.map(m =>
-            m.id === botMsgIdRef.current
-              ? { ...m, content: m.content + delta }
-              : m
-          )
-        );
+        updateBotMessage(content => content + delta);
       },
 
       onToolCalled(toolName) {
-        // 点亮对应灯泡
         setLamps(prev =>
           prev.map(l =>
             l.id === toolName
@@ -64,7 +98,6 @@ export default function App() {
               : l
           )
         );
-        // 1 秒后熄灭该灯泡
         setTimeout(() => {
           setLamps(prev =>
             prev.map(l => (l.id === toolName ? { ...l, active: false } : l))
@@ -72,22 +105,34 @@ export default function App() {
         }, 1000);
       },
 
-      onDone() {
-        setLoading(false);
-      },
+      onDone: finishStream,
 
       onError() {
-        setMessages(prev =>
-          prev.map(m =>
-            m.id === botMsgIdRef.current
-              ? { ...m, content: m.content || '⚠️ 请求失败，请检查后端服务是否启动。' }
-              : m
-          )
-        );
-        setLoading(false);
+        updateBotMessage(content => content || '⚠️ 请求失败，请检查后端服务是否启动。');
+        finishStream();
       },
-    });
+    }, conversationIdRef.current);
+
+    abortCtrlRef.current = ctrl;
+  }, [updateBotMessage, finishStream]);
+
+  const handleClearHistory = useCallback(() => {
+    localStorage.removeItem(CONVERSATION_ID_STORAGE_KEY);
+    const newId = crypto.randomUUID();
+    localStorage.setItem(CONVERSATION_ID_STORAGE_KEY, newId);
+    conversationIdRef.current = newId;
+    setMessages([]);
   }, []);
+
+  const handleStop = useCallback(async () => {
+    if (abortCtrlRef.current) {
+      abortCtrlRef.current.abort();
+      abortCtrlRef.current = null;
+    }
+    await stopAgent(conversationIdRef.current);
+    updateBotMessage(content => content + '\n\n⏹ *已停止生成*');
+    setLoading(false);
+  }, [updateBotMessage]);
 
   return (
     <div className={styles.shell}>
@@ -95,8 +140,12 @@ export default function App() {
       <div className={styles.blob2} />
 
       <div className={styles.stage}>
-        {/* ── Left: Chat panel ── */}
         <div className={styles.chatPanel}>
+          {historyLoading && messages.length === 0 && (
+            <div className={styles.historyOverlay}>
+              <div className={styles.historySpinner} />
+            </div>
+          )}
           <header className={styles.header}>
             <div className={styles.headerLeft}>
               <span className={styles.logo}>⬡</span>
@@ -109,10 +158,9 @@ export default function App() {
           </header>
 
           <ChatWindow messages={messages} loading={loading} />
-          <ChatInput onSend={handleSend} disabled={loading} />
+          <ChatInput onSend={handleSend} onStop={handleStop} onClear={handleClearHistory} disabled={loading} />
         </div>
 
-        {/* ── Right: Code viewer ── */}
         <div className={styles.codePanel}>
           <CodeViewer />
         </div>

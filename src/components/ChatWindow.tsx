@@ -12,14 +12,14 @@ export default function ChatWindow({ messages, loading }: Props) {
   const windowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // 没有内容时不需要滚动
     if (messages.length === 0 && !loading) return;
-    // 直接操作容器 scrollTop，只滚动 ChatWindow 内部
-    // 避免 scrollIntoView 滚动所有祖先元素导致 header 消失
     const el = windowRef.current;
     if (!el) return;
     el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
   }, [messages, loading]);
+
+  const lastMsg = messages[messages.length - 1];
+  const showTypingIndicator = loading && !(lastMsg?.role === 'assistant' && lastMsg.content.length > 0);
 
   return (
     <div ref={windowRef} className={styles.window}>
@@ -35,8 +35,7 @@ export default function ChatWindow({ messages, loading }: Props) {
         <ChatBubble key={msg.id} message={msg} />
       ))}
 
-      {/* 仅当 loading 且助手消息还没有内容流入时才显示等待动画 */}
-      {loading && !(messages.length > 0 && messages[messages.length - 1].role === 'assistant' && messages[messages.length - 1].content.length > 0) && (
+      {showTypingIndicator && (
         <div className={styles.typingRow}>
           <div className={styles.avatar}>⬡</div>
           <div className={styles.typing}>

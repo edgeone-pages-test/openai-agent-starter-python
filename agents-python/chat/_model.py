@@ -4,7 +4,8 @@
 
 被 ./index.py 通过 `from ._model import llm_model` 导入。
 
-通过环境变量 LLM_API_KEY / LLM_BASE_URL / LLM_MODEL 配置模型接入。
+通过环境变量 AI_GATEWAY_API_KEY / AI_GATEWAY_BASE_URL / LLM_MODEL 配置模型接入。
+当前使用腾讯混元 API（tokenhub.tencentmaas.com）。
 """
 
 import os
@@ -18,11 +19,11 @@ from agents import OpenAIChatCompletionsModel
 
 # LLM 模型接入
 llm_client = AsyncOpenAI(
-    api_key=os.getenv("LLM_API_KEY"),
-    base_url=os.getenv("LLM_BASE_URL"),
+    api_key=os.getenv("AI_GATEWAY_API_KEY"),
+    base_url=os.getenv("AI_GATEWAY_BASE_URL"),
 )
 
 llm_model = OpenAIChatCompletionsModel(
-    model=os.getenv("LLM_MODEL", "@Pages/glm-5"),
+    model=os.getenv("AI_GATEWAY_MODEL", "@Pages/glm-5"),
     openai_client=llm_client,
 )

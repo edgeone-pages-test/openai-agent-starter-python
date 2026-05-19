@@ -1,16 +1,19 @@
 import type React from 'react';
 import styles from './CodeViewer.module.css';
 
-/* ── Tiny inline helpers ── */
-const Cmt  = ({ t }: { t: string }) => <span className={styles.cmt}>{t}</span>;
-const Dec  = ({ t }: { t: string }) => <span className={styles.dec}>{t}</span>;
-const Kw   = ({ t }: { t: string }) => <span className={styles.kw}>{t}</span>;
-const Fn   = ({ t }: { t: string }) => <span className={styles.fn}>{t}</span>;
-const Ty   = ({ t }: { t: string }) => <span className={styles.ty}>{t}</span>;
-const Str  = ({ t }: { t: string }) => <span className={styles.str}>{t}</span>;
-const Doc  = ({ t }: { t: string }) => <span className={styles.doc}>{t}</span>;
-const Op   = ({ t }: { t: string }) => <span className={styles.op}>{t}</span>;
-const Va   = ({ t }: { t: string }) => <span className={styles.va}>{t}</span>;
+/* ── Token factory ── */
+const token = (cls: string) =>
+  function Token({ t }: { t: string }) { return <span className={cls}>{t}</span>; };
+
+const Cmt = token(styles.cmt);
+const Dec = token(styles.dec);
+const Kw  = token(styles.kw);
+const Fn  = token(styles.fn);
+const Ty  = token(styles.ty);
+const Str = token(styles.str);
+const Doc = token(styles.doc);
+const Op  = token(styles.op);
+const Va  = token(styles.va);
 
 interface LineProps { n: number; children?: React.ReactNode }
 const L = ({ n, children }: LineProps) => (
