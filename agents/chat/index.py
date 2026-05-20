@@ -12,6 +12,7 @@ context 约定：
     context.request.body    — dict，请求体
     context.conversation_id — 会话 ID
     context.run_id          — 本次运行 ID
+    context.store           — EdgeOne 内置 store，提供 openai_session() 等方法
 """
 
 from typing import Annotated, Any, AsyncGenerator
@@ -20,7 +21,6 @@ import json
 import os
 import time
 import traceback
-from datetime import datetime, timezone
 from urllib.parse import urlparse
 
 from openai.types.responses import ResponseTextDeltaEvent
@@ -29,7 +29,6 @@ from agents import Agent, Runner, function_tool
 # 私有模块：不映射为路由
 from ._model import llm_model
 from ._logger import create_logger
-from ._session import EdgeOneSession
 
 
 # ========== Config ==========
@@ -158,18 +157,9 @@ async def handler(context: Any) -> AsyncGenerator[str, None]:
         store = getattr(context, "store", None)
         logger.log(
             f"[debug][session] store_present={store is not None} "
-            f"store_type={type(store).__name__ if store is not None else None} "
-            f"has_openai_session={hasattr(store, 'openai_session') if store is not None else False}"
+            f"store_type={type(store).__name__ if store is not None else None}"
         )
-        if store is not None and hasattr(store, "openai_session"):
-            logger.log("[debug][session] using store.openai_session")
-            session = store.openai_session(cid)
-        elif store is not None:
-            logger.log("[debug][session] using EdgeOneSession adapter")
-            session = EdgeOneSession(store, cid)
-        else:
-            logger.log("[debug][session] no store; session=None")
-            session = None
+        session = store.openai_session(cid) if store is not None else None
         logger.log(f"[debug][session] session_type={type(session).__name__ if session is not None else None}")
 
         # 获取平台 cancel signal（asyncio.Event），当 /chat/stop 被调用时会被 set
