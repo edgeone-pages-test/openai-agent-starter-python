@@ -151,7 +151,7 @@ export default function App() {
               <span className={styles.logo}>⬡</span>
               <div>
                 <p className={styles.title}>Agent Chat</p>
-                <p className={styles.subtitle}>Powered by OpenAI Agents SDK</p>
+                <p className={styles.subtitle}>运行在 EdgeOne Pages 上，支持会话记忆、Agent Tools</p>
               </div>
             </div>
             <ToolIndicators lamps={lamps} />

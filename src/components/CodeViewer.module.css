@@ -147,6 +147,22 @@
 .line:nth-child(26) { animation-delay: 415ms; }
 .line:nth-child(27) { animation-delay: 430ms; }
 .line:nth-child(28) { animation-delay: 445ms; }
+.line:nth-child(29) { animation-delay: 460ms; }
+.line:nth-child(30) { animation-delay: 475ms; }
+.line:nth-child(31) { animation-delay: 490ms; }
+.line:nth-child(32) { animation-delay: 505ms; }
+.line:nth-child(33) { animation-delay: 520ms; }
+.line:nth-child(34) { animation-delay: 535ms; }
+.line:nth-child(35) { animation-delay: 550ms; }
+.line:nth-child(36) { animation-delay: 565ms; }
+.line:nth-child(37) { animation-delay: 580ms; }
+.line:nth-child(38) { animation-delay: 595ms; }
+.line:nth-child(39) { animation-delay: 610ms; }
+.line:nth-child(40) { animation-delay: 625ms; }
+.line:nth-child(41) { animation-delay: 640ms; }
+.line:nth-child(42) { animation-delay: 655ms; }
+.line:nth-child(43) { animation-delay: 670ms; }
+.line:nth-child(44) { animation-delay: 685ms; }
 
 @keyframes lineIn {
   from { opacity: 0; transform: translateX(-4px); }

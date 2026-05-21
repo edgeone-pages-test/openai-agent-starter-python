@@ -14,7 +14,6 @@ export default function ToolIndicators({ lamps }: Props) {
           <ToolLamp key={lamp.id} lamp={lamp} />
         ))}
       </div>
-      <p className={styles.hint}>当前 Agent 使用 tools</p>
     </div>
   );
 }
