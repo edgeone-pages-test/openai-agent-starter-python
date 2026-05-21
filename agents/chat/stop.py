@@ -12,7 +12,7 @@ Stop handler — EdgeOne Pages Functions
 这样 LLM 的调用会被真正中断，而不仅仅是断开 SSE 连接。
 """
 
-from ._logger import create_logger
+from .._logger import create_logger
 
 logger = create_logger("stop")
 
