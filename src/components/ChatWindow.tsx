@@ -26,7 +26,7 @@ export default function ChatWindow({ messages, loading }: Props) {
       {messages.length === 0 && (
         <div className={styles.empty}>
           <span className={styles.emptyIcon}>⬡</span>
-          <p className={styles.emptyTitle}>OpenAI Agent Starter</p>
+          <p className={styles.emptyTitle}>OpenAI Agents Starter</p>
           <p className={styles.emptyHint}>
             我是运行在 EdgeOne 环境中的 OpenAI Agents，支持自定义工具、会话记忆，并帮助你完成天气查询、穿衣建议、翻译和文本统计。
           </p>
