@@ -16,6 +16,10 @@ const INITIAL_LAMPS: ToolLampState[] = [
 
 const CONVERSATION_ID_STORAGE_KEY = 'eo_conversation_id';
 
+// 模块级去重标记 —— 不受 React StrictMode 组件卸载/重挂载影响。
+// useRef 在 StrictMode 双渲染时可能被重置，但模块变量不会。
+let _historyFetchInFlight = false;
+
 function getOrCreateConversationId(): string {
   const cached = localStorage.getItem(CONVERSATION_ID_STORAGE_KEY);
   if (cached) return cached;
@@ -34,17 +38,18 @@ export default function App() {
   const botMsgIdRef = useRef<string>('');
   const abortCtrlRef = useRef<AbortController | null>(null);
   const conversationIdRef = useRef<string>(getOrCreateConversationId());
-  const historyFetchedRef = useRef(false);
 
   useEffect(() => {
-    if (historyFetchedRef.current) return;
-    historyFetchedRef.current = true;
+    // 模块级标记防止 StrictMode 双渲染导致并发请求 → 409
+    if (_historyFetchInFlight) return;
+    _historyFetchInFlight = true;
 
     fetchConversationHistory(conversationIdRef.current).then(history => {
       if (history.length > 0) {
         setMessages(history);
       }
     }).finally(() => {
+      _historyFetchInFlight = false;
       setHistoryLoading(false);
     });
   }, []);
