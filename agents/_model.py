@@ -4,8 +4,7 @@
 
 被 ./index.py 通过 `from ._model import llm_model` 导入。
 
-通过环境变量 AI_GATEWAY_API_KEY / AI_GATEWAY_BASE_URL / LLM_MODEL 配置模型接入。
-当前使用腾讯混元 API（tokenhub.tencentmaas.com）。
+通过环境变量 AI_GATEWAY_API_KEY / AI_GATEWAY_BASE_URL / AI_GATEWAY_MODEL 配置 OpenAI-compatible 模型接入。
 """
 
 import os

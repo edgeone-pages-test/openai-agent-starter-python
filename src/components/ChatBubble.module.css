@@ -101,10 +101,12 @@
 .markdown :global(ul),
 .markdown :global(ol) {
   margin: 0.4em 0;
-  padding-left: 1.4em;
+  padding-left: 2em;
+  list-style-position: outside;
 }
 .markdown :global(li) {
   margin: 0.2em 0;
+  padding-left: 0.15em;
 }
 .markdown :global(code) {
   background: rgba(255, 255, 255, 0.06);
