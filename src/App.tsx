@@ -18,8 +18,14 @@ const CONVERSATION_ID_STORAGE_KEY = 'eo_conversation_id';
 // useRef 在 StrictMode 双渲染时可能被重置，但模块变量不会。
 let _historyFetchInFlight = false;
 
+/** Returns existing conversation ID from localStorage, or null if first visit */
+function getExistingConversationId(): string | null {
+  return localStorage.getItem(CONVERSATION_ID_STORAGE_KEY);
+}
+
+/** Returns existing or creates a new conversation ID */
 function getOrCreateConversationId(): string {
-  const cached = localStorage.getItem(CONVERSATION_ID_STORAGE_KEY);
+  const cached = getExistingConversationId();
   if (cached) return cached;
 
   const conversationId = crypto.randomUUID();
@@ -69,6 +75,12 @@ function AppInner() {
   }, [t]);
 
   useEffect(() => {
+    // First visit: no existing conversation → skip history fetch for instant load
+    if (!getExistingConversationId()) {
+      setHistoryLoading(false);
+      return;
+    }
+
     // 模块级标记防止 StrictMode 双渲染导致并发请求 → 409
     if (_historyFetchInFlight) return;
     _historyFetchInFlight = true;
