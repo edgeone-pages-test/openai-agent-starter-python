@@ -50,7 +50,7 @@ openAI-agent-starter-python/
 |----------|----------|-------------|
 | `AI_GATEWAY_API_KEY` | Yes | LLM API key |
 | `AI_GATEWAY_BASE_URL` | Yes | LLM API base URL (OpenAI-compatible) |
-| `AI_GATEWAY_MODEL` | No | Model name (default: `@Pages/hy3-preview`) |
+| `AI_GATEWAY_MODEL` | No | Model name (default: `@makers/hy3-preview`) |
 
 ## API Endpoints
 

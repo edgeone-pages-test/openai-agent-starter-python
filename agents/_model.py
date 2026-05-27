@@ -30,6 +30,6 @@ llm_client = AsyncOpenAI(
 )
 
 llm_model = OpenAIChatCompletionsModel(
-    model=os.getenv("AI_GATEWAY_MODEL", "@Pages/hy3-preview"),
+    model=os.getenv("AI_GATEWAY_MODEL", "@makers/hy3-preview"),
     openai_client=llm_client,
 )

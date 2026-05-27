@@ -50,7 +50,7 @@ openAI-agent-starter-python/
 |------|------|------|
 | `AI_GATEWAY_API_KEY` | 是 | LLM API 密钥 |
 | `AI_GATEWAY_BASE_URL` | 是 | LLM API 地址（OpenAI 兼容） |
-| `AI_GATEWAY_MODEL` | 否 | 模型名称（默认 `@Pages/hy3-preview`） |
+| `AI_GATEWAY_MODEL` | 否 | 模型名称（默认 `@makers/hy3-preview`） |
 
 ## API 接口
 
