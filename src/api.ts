@@ -32,7 +32,7 @@ export async function fetchConversationHistory(conversationId: string): Promise<
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'pages-agent-conversation-id': conversationId,
+          'makers-conversation-id': conversationId,
         },
         body: JSON.stringify({}),
       });
