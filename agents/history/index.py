@@ -4,7 +4,7 @@ History handler — EdgeOne Pages Functions
 
 文件路径 agents/history/index.py 自动映射到 **POST /history**
 
-根据前端传入的 pages-agent-conversation-id，从 ctx.store 读取历史消息，
+根据前端传入的 makers-conversation-id，从 ctx.store 读取历史消息，
 用于页面刷新后恢复前端聊天窗口。
 """
 
