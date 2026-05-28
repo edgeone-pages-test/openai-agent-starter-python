@@ -16,17 +16,39 @@ context 约定：
 from typing import Any, AsyncGenerator
 import asyncio
 import json
+import os
 
+from dotenv import load_dotenv
+from openai import AsyncOpenAI
 from openai.types.responses import ResponseTextDeltaEvent
-from agents import Agent, Runner
+from agents import Agent, OpenAIChatCompletionsModel, Runner
 
-# 私有模块：不映射为路由
-from .._model import llm_model
 from .._logger import create_logger
 from .._tools import get_weather, get_clothing_advice, translate_text, text_statistics
 
 
+load_dotenv()
+
+try:
+    import truststore
+
+    truststore.inject_into_ssl()
+except Exception:
+    pass
+
 logger = create_logger("chat")
+
+
+# ========== LLM Model ==========
+llm_client = AsyncOpenAI(
+    api_key=os.getenv("AI_GATEWAY_API_KEY"),
+    base_url=os.getenv("AI_GATEWAY_BASE_URL"),
+)
+
+llm_model = OpenAIChatCompletionsModel(
+    model=os.getenv("AI_GATEWAY_MODEL", "@makers/hy3-preview"),
+    openai_client=llm_client,
+)
 
 
 # ========== Agent ==========

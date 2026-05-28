@@ -4,7 +4,6 @@
  * 路由映射规则（文件 → 路由）：
  *   agents/chat/index.ts    → POST /chat          主聊天入口
  *   agents/stop/index.ts    → POST /stop          中断正在执行的 agent
- *   agents/chat/_model.ts   → （私有，不映射）     AI 网关 / 模型配置
  *
  * 本文件集中定义所有路径 + 请求封装，方便以后扩展子路由。
  */

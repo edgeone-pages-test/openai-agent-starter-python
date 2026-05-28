@@ -20,7 +20,6 @@ openAI-agent-starter-python/
 │   │   └── stop.py              # POST /chat/stop — 中断入口
 │   ├── history/
 │   │   └── index.py              # POST /history — 对话历史
-│   ├── _model.py                 # LLM 模型配置（私有模块）
 │   ├── _logger.py                # 日志工具（私有模块）
 │   └── _tools.py                 # Agent 工具定义（私有模块）
 ├── src/                           # React 前端（Vite + TypeScript）
@@ -74,7 +73,7 @@ event: done           data: {"stopped":false}
 
 ### 后端（`agents/`）
 
-1. **`llm_model`** — `AsyncOpenAI` + `OpenAIChatCompletionsModel`，通过环境变量配置
+1. **`agents/chat/index.py`** — 通过环境变量配置 `AsyncOpenAI` + `OpenAIChatCompletionsModel`，并流式返回 Agent 响应
 2. **`@function_tool`** — 定义自定义 Agent 工具（天气、穿衣、翻译、统计）
 3. **`context.store.openai_session(cid)`** — 提供 session 持久化，用于多轮对话记忆
 4. **`Runner.run_streamed(agent, input, session)`** — 启动 Agent 并流式输出

@@ -50,8 +50,8 @@ export default function CodeViewer() {
 
         <div className={styles.code}>
           {/* ── Imports ── */}
-          <L n={1}><Kw t="from " /><Va t="agents" /><Kw t=" import " /><Ty t="Agent" /><Op t=", " /><Ty t="Runner" /><Op t=", " /><Dec t="function_tool" /></L>
-          <L n={2}><Kw t="from " /><Va t="._model" /><Kw t=" import " /><Va t="llm_model" /></L>
+          <L n={1}><Kw t="from " /><Va t="openai" /><Kw t=" import " /><Ty t="AsyncOpenAI" /></L>
+          <L n={2}><Kw t="from " /><Va t="agents" /><Kw t=" import " /><Ty t="Agent" /><Op t=", " /><Ty t="OpenAIChatCompletionsModel" /><Op t=", " /><Ty t="Runner" /><Op t=", " /><Dec t="function_tool" /></L>
           <L n={3} />
 
           {/* ── 1. Tool definition ── */}

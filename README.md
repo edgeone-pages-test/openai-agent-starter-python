@@ -20,7 +20,6 @@ openAI-agent-starter-python/
 │   │   └── stop.py              # POST /chat/stop — abort active run
 │   ├── history/
 │   │   └── index.py              # POST /history — conversation history
-│   ├── _model.py                 # LLM model config (private module)
 │   ├── _logger.py                # Logger utility (private module)
 │   └── _tools.py                 # Agent tool definitions (private module)
 ├── src/                           # React frontend (Vite + TypeScript)
@@ -74,7 +73,7 @@ event: done           data: {"stopped":false}
 
 ### Backend (`agents/`)
 
-1. **`llm_model`** — `AsyncOpenAI` + `OpenAIChatCompletionsModel` configured from environment variables
+1. **`agents/chat/index.py`** — Configures `AsyncOpenAI` + `OpenAIChatCompletionsModel` from environment variables and streams the Agent response
 2. **`@function_tool`** — Defines custom Agent tools (weather, clothing, translate, statistics)
 3. **`context.store.openai_session(cid)`** — Provides session persistence for multi-turn memory
 4. **`Runner.run_streamed(agent, input, session)`** — Launches the Agent with streaming output
