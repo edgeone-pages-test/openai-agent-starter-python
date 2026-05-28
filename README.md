@@ -1,6 +1,6 @@
 # OpenAI Agents Starter (Python)
 
-A full-stack EdgeOne Pages Agent template powered by the OpenAI Agents SDK (Python). Demonstrates how to build a streaming chat Agent with custom tools, session memory via `context.store`, and real-time tool indicators.
+A full-stack EdgeOne Makers Agent template powered by the OpenAI Agents SDK (Python). Demonstrates how to build a streaming chat Agent with custom tools, session memory via `context.store`, and real-time tool indicators.
 
 ## Features
 
@@ -14,7 +14,7 @@ A full-stack EdgeOne Pages Agent template powered by the OpenAI Agents SDK (Pyth
 
 ```text
 openAI-agent-starter-python/
-├── agents/                        # Python backend (EdgeOne Pages Functions)
+├── agents/                        # Python backend (EdgeOne Makers)
 │   ├── chat/
 │   │   ├── index.py              # POST /chat — SSE streaming chat
 │   │   └── stop.py              # POST /chat/stop — abort active run
@@ -97,5 +97,5 @@ npm install
 pip install -r requirements.txt
 
 # Start EdgeOne local dev (frontend + backend)
-edgeone pages dev
+edgeone makers dev
 ```

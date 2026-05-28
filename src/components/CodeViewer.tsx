@@ -177,7 +177,7 @@ export default function CodeViewer() {
       {/* ── Footer tag ── */}
       <div className={styles.footer}>
         <span className={styles.footerDot} />
-        <span>OpenAI Agents SDK · EdgeOne Pages</span>
+        <span>OpenAI Agents SDK · EdgeOne Makers</span>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 # OpenAI Agents Starter (Python)
 
-基于 OpenAI Agents SDK (Python) 的 EdgeOne Pages Agent 全栈项目模板。演示如何构建一个支持流式聊天、自定义工具、会话记忆和工具指示灯的 Agent。
+基于 OpenAI Agents SDK (Python) 的 EdgeOne Makers Agent 全栈项目模板。演示如何构建一个支持流式聊天、自定义工具、会话记忆和工具指示灯的 Agent。
 
 ## 功能
 
@@ -14,7 +14,7 @@
 
 ```text
 openAI-agent-starter-python/
-├── agents/                        # Python 后端（EdgeOne Pages Functions）
+├── agents/                        # Python 后端（EdgeOne Makers）
 │   ├── chat/
 │   │   ├── index.py              # POST /chat — SSE 流式聊天
 │   │   └── stop.py              # POST /chat/stop — 中断入口
@@ -97,5 +97,5 @@ npm install
 pip install -r requirements.txt
 
 # 启动 EdgeOne 本地开发（前后端同时启动）
-edgeone pages dev
+edgeone makers dev
 ```

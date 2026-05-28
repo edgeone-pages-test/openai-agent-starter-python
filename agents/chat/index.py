@@ -1,9 +1,9 @@
 """
-Agent handler — EdgeOne Pages Functions
+Agent handler — EdgeOne Makers
 ========================================
 
 文件路径 agents/chat/index.py 自动映射到  **POST /chat**
-（EdgeOne Pages Functions 的路由约定：目录名即路由名，index 为默认入口）
+（EdgeOne Makers 的路由约定：目录名即路由名，index 为默认入口）
 
 context 约定：
     context.request.body    — dict，请求体
@@ -81,7 +81,7 @@ async def _event_stream(
 
 # ========== Core Handler ==========
 async def handler(context: Any) -> AsyncGenerator[str, None]:
-    """EdgeOne Pages Functions 入口。
+    """EdgeOne Makers 入口。
 
     Uses OpenAI Agents SDK session for automatic memory:
       - SDK calls session.get_items() to inject history

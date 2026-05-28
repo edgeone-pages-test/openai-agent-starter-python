@@ -1,7 +1,7 @@
 const zh = {
   // Header
-  "app.title": "Agent Chat",
-  "app.subtitle": "运行在 EdgeOne Pages 上，支持会话记忆、Agent Tools",
+  "app.title": "OpenAI Agents Starter",
+  "app.subtitle": "运行在 EdgeOne Makers 上，支持会话记忆、Agent Tools",
 
   // Empty state
   "empty.title": "OpenAI Agents Starter",

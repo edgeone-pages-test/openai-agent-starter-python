@@ -1,7 +1,7 @@
 const en = {
   // Header
-  "app.title": "Agent Chat",
-  "app.subtitle": "Running on EdgeOne Pages with session memory & Agent Tools",
+  "app.title": "OpenAI Agents Starter",
+  "app.subtitle": "Running on EdgeOne Makers with session memory & Agent Tools",
 
   // Empty state
   "empty.title": "OpenAI Agents Starter",

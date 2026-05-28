@@ -1,5 +1,5 @@
 """
-History handler — EdgeOne Pages Functions
+History handler — EdgeOne Makers
 =========================================
 
 文件路径 agents/history/index.py 自动映射到 **POST /history**

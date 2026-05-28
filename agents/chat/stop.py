@@ -1,5 +1,5 @@
 """
-Stop handler — EdgeOne Pages Functions
+Stop handler — EdgeOne Makers
 ========================================
 
 文件路径 agents/chat/stop.py 自动映射到 **POST /chat/stop**
