@@ -27,6 +27,13 @@ const zh = {
   "status.stopped": "⏹ *已停止生成*",
   "status.backendError": "⚠️ 后端中断请求失败，服务端可能仍在运行。",
 
+  // Debug panel
+  "debug.title": "传输流",
+  "debug.events": "事件",
+  "debug.clear": "清除",
+  "debug.empty": "等待 SSE 事件...",
+  "debug.emptyHint": "发送消息后，所有原始后端数据将在此处显示。",
+
   // Language toggle
   "lang.switch": "English",
 } as const;

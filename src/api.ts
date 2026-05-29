@@ -16,11 +16,19 @@ export const API = {
   history: '/history', // 获取当前 conversation 的历史消息
 } as const;
 
+export interface RawSseEvent {
+  eventType: string;
+  data: unknown;
+  raw: string;
+  timestamp: number;
+}
+
 export interface StreamCallbacks {
   onTextDelta: (delta: string) => void;
   onToolCalled: (toolName: string) => void;
   onDone: () => void;
   onError: (err: Error) => void;
+  onRawEvent?: (event: RawSseEvent) => void;
 }
 
 /** 获取当前 conversation 的历史消息，用于刷新页面后恢复聊天窗口。 */
@@ -145,6 +153,13 @@ function dispatchSseChunk(part: string, cb: StreamCallbacks, markDone: () => voi
 
   try {
     const parsed = JSON.parse(data);
+    cb.onRawEvent?.({
+      eventType,
+      data: parsed,
+      raw: data,
+      timestamp: Date.now(),
+    });
+
     switch (eventType) {
       case 'text_delta':
         cb.onTextDelta(parsed.delta);
@@ -161,7 +176,12 @@ function dispatchSseChunk(part: string, cb: StreamCallbacks, markDone: () => voi
         break;
     }
   } catch {
-    // 忽略解析失败的事件
+    cb.onRawEvent?.({
+      eventType,
+      data: null,
+      raw: data,
+      timestamp: Date.now(),
+    });
   }
 }
 
