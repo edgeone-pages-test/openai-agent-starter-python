@@ -2,8 +2,9 @@
  * 后端接口（EdgeOne Makers）
  *
  * 路由映射规则（文件 → 路由）：
- *   agents/chat/index.ts    → POST /chat          主聊天入口
- *   agents/stop/index.ts    → POST /stop          中断正在执行的 agent
+ *   agents/chat/index.py                    → POST /chat       主聊天入口
+ *   agents/stop.py                          → POST /stop       中断正在执行的 agent
+ *   cloud-functions/history/index.py        → POST /history    获取当前 conversation 的历史消息
  *
  * 本文件集中定义所有路径 + 请求封装，方便以后扩展子路由。
  */
@@ -31,17 +32,22 @@ export interface StreamCallbacks {
   onRawEvent?: (event: RawSseEvent) => void;
 }
 
-/** 获取当前 conversation 的历史消息，用于刷新页面后恢复聊天窗口。 */
+/**
+ * 获取当前 conversation 的历史消息，用于刷新页面后恢复聊天窗口。
+ *
+ * 注意：cloud-functions/history 是 BaseHTTPRequestHandler，conversation_id
+ * 通过 body 传递（agents runtime 才会把 makers-conversation-id header 自动
+ * 注入到 handler context 上）。
+ */
 export async function fetchConversationHistory(conversationId: string): Promise<Message[]> {
+  if (!conversationId) return [];
+
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
       const res = await fetch(API.history, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'makers-conversation-id': conversationId,
-        },
-        body: JSON.stringify({}),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversation_id: conversationId }),
       });
 
       // 409 = 同 conversation 有活跃请求（React StrictMode 双渲染导致），等一下重试
