@@ -138,6 +138,31 @@ async def handler(context: Any) -> AsyncGenerator[str, None]:
         logger.log("[stream] cancelled")
     except Exception as e:
         logger.error(f"[stream] error: {type(e).__name__}: {e}")
-        yield sse_event("error", {"message": str(e)})
+        # Try to surface upstream HTTP error body (e.g. OpenAI SDK APIStatusError) to the TRACE panel
+        detail: Any = str(e)
+        status: Any = None
+        response = getattr(e, "response", None)
+        if response is not None:
+            status = getattr(response, "status_code", None)
+            try:
+                body_text = response.text if hasattr(response, "text") else None
+                if callable(body_text):
+                    body_text = body_text()
+                if body_text:
+                    try:
+                        detail = json.loads(body_text)
+                    except (json.JSONDecodeError, ValueError, TypeError):
+                        detail = body_text
+            except Exception:
+                pass
+        body_attr = getattr(e, "body", None)
+        if body_attr and detail == str(e):
+            detail = body_attr
+        yield sse_event("error", {
+            "message": str(e),
+            "errorType": type(e).__name__,
+            "status": status,
+            "detail": detail,
+        })
     finally:
         yield sse_event("done", {"stopped": stopped})
