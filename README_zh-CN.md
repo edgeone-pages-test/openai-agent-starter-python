@@ -18,14 +18,16 @@
 
 ```text
 openAI-agent-starter-python/
-├── agents/                        # Python 后端（EdgeOne Makers）
+├── agents/                        # 有状态的 EdgeOne Makers Agent Functions（Python）
 │   ├── chat/
 │   │   ├── index.py              # POST /chat — SSE 流式聊天
-│   │   └── stop.py              # POST /chat/stop — 中断入口
-│   ├── history/
-│   │   └── index.py              # POST /history — 对话历史
+│   │   └── stop.py               # POST /chat/stop — 中断入口
 │   ├── _logger.py                # 日志工具（私有模块）
 │   └── _tools.py                 # Agent 工具定义（私有模块）
+├── cloud-functions/               # 无状态的 EdgeOne Pages Python cloud functions
+│   ├── history/
+│   │   └── index.py              # POST /history — 拉取对话消息
+│   └── _logger.py                # 日志工具
 ├── src/                           # React 前端（Vite + TypeScript）
 │   ├── App.tsx                    # 主应用组件
 │   ├── api.ts                    # 后端 API 封装（SSE 流式调用）
@@ -46,6 +48,8 @@ openAI-agent-starter-python/
 ```
 
 > 以 `_` 开头的文件是私有模块，不会被 EdgeOne 映射为公开路由。
+>
+> **为什么后端拆成两个目录？** `agents/` 跑的是有状态、长连接的路由（活跃 SSE 流、按会话维度的 abort 信号）；`cloud-functions/` 跑的是只读 `context.agent.store` 的短小无状态路由。两者拆开之后，历史记录拉取就不会和正在进行的对话争抢同一会话的锁。
 
 ## 环境变量
 
@@ -57,11 +61,11 @@ openAI-agent-starter-python/
 
 ## API 接口
 
-| 端点 | 方法 | 说明 |
-|------|------|------|
-| `/chat` | POST | SSE 流式聊天，Header 带 `makers-conversation-id` |
-| `/chat/stop` | POST | 中断正在执行的 agent，Body 传 `{ "conversation_id": "..." }` |
-| `/history` | POST | 获取对话历史，Header 带 `makers-conversation-id` |
+| 端点 | 方法 | 所在目录 | 说明 |
+|------|------|----------|------|
+| `/chat` | POST | `agents/` | SSE 流式聊天，Header 带 `makers-conversation-id` |
+| `/chat/stop` | POST | `agents/` | 中断正在执行的 agent，Body 传 `{ "conversation_id": "..." }` |
+| `/history` | POST | `cloud-functions/` | 获取对话历史，Body 传 `{ "conversation_id": "..." }` |
 
 ### SSE 事件
 
@@ -75,13 +79,17 @@ event: done           data: {"stopped":false}
 
 ## 架构
 
-### 后端（`agents/`）
+### 后端（`agents/` + `cloud-functions/`)
+
+`agents/` 是有状态的部分，持有正在进行的 SSE 流以及对应的 AbortSignal：
 
 1. **`agents/chat/index.py`** — 通过环境变量配置 `AsyncOpenAI` + `OpenAIChatCompletionsModel`，并流式返回 Agent 响应
 2. **`@function_tool`** — 定义自定义 Agent 工具（天气、穿衣、翻译、统计）
 3. **`context.store.openai_session(cid)`** — 提供 session 持久化，用于多轮对话记忆
 4. **`Runner.run_streamed(agent, input, session)`** — 启动 Agent 并流式输出
 5. **SSE 输出** — 依次 yield `text_delta`、`tool_called`、`done`、`error` 事件
+
+`cloud-functions/history` 是无状态的 `/history` 路由——只调用 `context.agent.store.get_messages()` 恢复刷新页面后的聊天历史，不会启动 agent。
 
 ### 前端（`src/`）
 
