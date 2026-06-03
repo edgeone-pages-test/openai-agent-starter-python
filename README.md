@@ -2,6 +2,10 @@
 
 A full-stack EdgeOne Makers Agent template powered by the OpenAI Agents SDK (Python). Demonstrates how to build a streaming chat Agent with custom tools, session memory via `context.store`, and real-time tool indicators.
 
+## Deploy
+
+[![Deploy with EdgeOne Pages](https://cdnstatic.tencentcs.com/edgeone/pages/deploy.svg)](https://edgeone.ai/makers/new?template=openai-agents-starter-python&from=within&fromAgent=1&agentLang=python)
+
 ## Features
 
 - **SSE Streaming Chat** — Token-by-token `text_delta` push; `tool_called` events when tools are invoked
