@@ -1,112 +1,89 @@
 # OpenAI Agents Starter (Python)
 
-基于 OpenAI Agents SDK (Python) 的 EdgeOne Makers Agent 全栈项目模板。演示如何构建一个支持流式聊天、自定义工具、会话记忆和工具指示灯的 Agent。
+**语言：** [English](./README.md) | 简体中文
 
-## 部署
+跑在 EdgeOne Makers 上的全栈 Python Agent 模板：基于 OpenAI Agents SDK（Python）的流式聊天，包含自定义工具与基于 `context.store` 的会话记忆。
 
-[![使用 EdgeOne Pages 部署](https://cdnstatic.tencentcs.com/edgeone/pages/deploy.svg)](https://console.cloud.tencent.com/edgeone/makers/new?template=openai-agents-starter-python&from=within&fromAgent=1&agentLang=python)
+**Framework：** OpenAI Agents SDK · **Category：** Quick Start <!-- TODO: confirm --> · **Language：** Python
 
-## 功能
+[![Deploy to EdgeOne Makers](https://cdnstatic.tencentcs.com/edgeone/pages/deploy.svg)](https://edgeone.ai/makers/new?template=openai-agents-starter-python&from=within&fromAgent=1&agentLang=python)
 
-- **SSE 流式聊天** — 逐 token 推送 `text_delta`，命中工具时推送 `tool_called`
-- **会话记忆** — 通过 EdgeOne `context.store.openai_session()` 持久化多轮对话上下文
-- **自定义 Agent 工具** — get_weather、get_clothing_advice、translate_text、text_statistics
-- **停止生成** — 通过平台 runtime cancel signal 真正中断 LLM 调用
-- **工具灯状态** — 4 个动画指示灯，Agent 调用工具时实时点亮
+<!-- ![preview](./assets/preview.png)  TODO: confirm -->
 
-## 目录结构
+## 概述
 
-```text
-openAI-agent-starter-python/
-├── agents/                        # 有状态的 EdgeOne Makers Agent Functions（Python）
-│   ├── chat/
-│   │   ├── index.py              # POST /chat — SSE 流式聊天
-│   │   └── stop.py               # POST /chat/stop — 中断入口
-│   ├── _logger.py                # 日志工具（私有模块）
-│   └── _tools.py                 # Agent 工具定义（私有模块）
-├── cloud-functions/               # 无状态的 EdgeOne Pages Python cloud functions
-│   ├── history/
-│   │   └── index.py              # POST /history — 拉取对话消息
-│   └── _logger.py                # 日志工具
-├── src/                           # React 前端（Vite + TypeScript）
-│   ├── App.tsx                    # 主应用组件
-│   ├── api.ts                    # 后端 API 封装（SSE 流式调用）
-│   ├── types.ts                  # 类型定义
-│   └── components/               # UI 组件
-│       ├── ChatWindow.tsx        # 聊天窗口
-│       ├── ChatBubble.tsx        # 消息气泡（支持 Markdown）
-│       ├── ChatInput.tsx         # 输入框 + 预设 + 停止按钮
-│       ├── CodeViewer.tsx        # 代码展示面板（CRT 风格）
-│       ├── ToolIndicators.tsx    # 工具指示灯容器
-│       └── ToolLamp.tsx          # 单个工具指示灯
-├── index.html                    # 入口 HTML
-├── package.json                  # 前端依赖
-├── requirements.txt              # Python 依赖
-├── vite.config.ts                # Vite 配置
-├── tsconfig.json                 # TypeScript 配置
-└── .gitignore                    # Git 忽略规则
-```
+把 OpenAI Agents SDK（Python）接到 EdgeOne Makers 上的最小但贴近生产形态的模板。完整跑通了流式响应、自定义工具注册、会话存储这条链路，方便你直接 fork，把示例工具（`get_weather`、`get_clothing_advice`、`translate_text`、`text_statistics`）替换成你自己的实现。
 
-> 以 `_` 开头的文件是私有模块，不会被 EdgeOne 映射为公开路由。
->
-> **为什么后端拆成两个目录？** `agents/` 跑的是有状态、长连接的路由（活跃 SSE 流、按会话维度的 abort 信号）；`cloud-functions/` 跑的是只读 `context.agent.store` 的短小无状态路由。两者拆开之后，历史记录拉取就不会和正在进行的对话争抢同一会话的锁。
+- **SSE 流式聊天** —— 逐 token 推 `text_delta`，命中工具时推 `tool_called`。
+- **自定义 Agent 工具** —— 四个 `@function_tool` 示例，可直接替换。
+- **会话粘性记忆** —— `context.store.openai_session(cid)` 直接喂给 `Runner.run_streamed()` 的 `session` 参数。
+- **可信取消** —— 后端 `context.utils.abort_active_run()` 真正中断 LLM 调用。
+- **后端拆两层** —— 有状态的长连接放 `agents/`，无状态的 `/history` 放 `cloud-functions/`。
 
 ## 环境变量
 
 | 变量 | 必填 | 说明 |
 |------|------|------|
-| `AI_GATEWAY_API_KEY` | 是 | LLM API 密钥 |
-| `AI_GATEWAY_BASE_URL` | 是 | LLM API 地址（OpenAI 兼容） |
-| `AI_GATEWAY_MODEL` | 否 | 模型名称（默认 `@makers/hy3-preview`） |
+| `AI_GATEWAY_API_KEY` | 是 | 模型网关 API Key。可填 Makers Models 的 API Key，也可以是任意 OpenAI 兼容服务商的 Key。 |
+| `AI_GATEWAY_BASE_URL` | 是 | 网关 Base URL。Makers Models 请使用 `https://ai-gateway.edgeone.link/v1`。 |
+| `AI_GATEWAY_MODEL` | 否 | 模型 ID。默认 `@makers/hy3-preview`（内置免费模型）。 |
 
-## API 接口
+模板遵循 OpenAI 兼容协议，可以指向 Makers Models，也可以指向任意 OpenAI 兼容的服务商。
 
-| 端点 | 方法 | 所在目录 | 说明 |
-|------|------|----------|------|
-| `/chat` | POST | `agents/` | SSE 流式聊天，Header 带 `makers-conversation-id` |
-| `/chat/stop` | POST | `agents/` | 中断正在执行的 agent，Body 传 `{ "conversation_id": "..." }` |
-| `/history` | POST | `cloud-functions/` | 获取对话历史，Body 传 `{ "conversation_id": "..." }` |
+### 如何获取 `AI_GATEWAY_API_KEY`
 
-### SSE 事件
+1. 打开 [Makers 控制台](https://console.cloud.tencent.com/edgeone/makers)。
+2. 登录并开通 Makers。
+3. 进入 **Makers → Models → API Key**，新建一个 Key。
+4. 把它粘到 `AI_GATEWAY_API_KEY`。
 
-```
-event: text_delta     data: {"delta":"你好"}
-event: tool_called    data: {"tool":"get_weather"}
-event: ping           data: {"ts":1710000000000}
-event: error          data: {"message":"..."}
-event: done           data: {"stopped":false}
-```
-
-## 架构
-
-### 后端（`agents/` + `cloud-functions/`)
-
-`agents/` 是有状态的部分，持有正在进行的 SSE 流以及对应的 AbortSignal：
-
-1. **`agents/chat/index.py`** — 通过环境变量配置 `AsyncOpenAI` + `OpenAIChatCompletionsModel`，并流式返回 Agent 响应
-2. **`@function_tool`** — 定义自定义 Agent 工具（天气、穿衣、翻译、统计）
-3. **`context.store.openai_session(cid)`** — 提供 session 持久化，用于多轮对话记忆
-4. **`Runner.run_streamed(agent, input, session)`** — 启动 Agent 并流式输出
-5. **SSE 输出** — 依次 yield `text_delta`、`tool_called`、`done`、`error` 事件
-
-`cloud-functions/history` 是无状态的 `/history` 路由——只调用 `context.agent.store.get_messages()` 恢复刷新页面后的聊天历史，不会启动 agent。
-
-### 前端（`src/`）
-
-- `App.tsx` — 编排聊天面板 + 代码查看器，管理 SSE 流
-- `api.ts` — SSE 解析，分发 `onTextDelta`、`onToolCalled`、`onDone`、`onError`
-- `components/CodeViewer.tsx` — 静态代码展示面板（琥珀 CRT 风格），展示 Agent 创建流程
-- `components/ToolIndicators.tsx` — 模型调用工具时的动画指示灯
+内置的 `@makers/hy3-preview` 免费但有用量限制，适合验证；生产建议自行绑定付费厂商（BYOK）。
 
 ## 本地开发
 
+前置依赖：Node.js ≥ 18、Python ≥ 3.10，以及 EdgeOne CLI（`npm i -g edgeone`）。
+
 ```bash
-# 安装前端依赖
 npm install
-
-# 安装后端 Python 依赖
 pip install -r requirements.txt
-
-# 启动 EdgeOne 本地开发（前后端同时启动）
+cp .env.example .env       # 然后填入 AI_GATEWAY_API_KEY / AI_GATEWAY_BASE_URL
 edgeone makers dev
 ```
+
+本地观测面板：`http://localhost:8080/agent-metrics`。
+
+## 项目结构
+
+```text
+openAI-agent-starter-python/
+├── agents/                          # 有状态的 EdgeOne Makers Agent Functions（Python）
+│   ├── chat/index.py               # POST /chat —— SSE 流式聊天
+│   ├── chat/stop.py                # POST /chat/stop —— 中断当前 agent
+│   ├── _logger.py                  # 日志工具（私有）
+│   └── _tools.py                   # Agent 工具定义（私有）
+├── cloud-functions/                 # 无状态的 EdgeOne Pages Python cloud functions
+│   ├── history/index.py            # POST /history —— 拉取对话消息
+│   └── _logger.py                  # 日志工具
+├── src/                             # React + Vite + TypeScript 前端
+│   ├── App.tsx                     # 主应用 + SSE 流生命周期管理
+│   ├── api.ts                      # /chat、/chat/stop、/history 接口封装
+│   └── components/                 # ChatWindow、ChatInput、CodeViewer、ToolIndicators 等
+├── package.json                     # 前端依赖
+├── requirements.txt                 # Python 依赖
+├── edgeone.json                     # framework=openai-sdk
+├── vite.config.ts
+├── tsconfig.json
+└── .gitignore
+```
+
+> 以 `_` 开头的文件是私有模块，不会暴露为公开路由。
+
+## 资源
+
+- [EdgeOne Makers Agents 文档](https://pages.edgeone.ai/document/agents)
+- [EdgeOne Makers 快速开始](https://pages.edgeone.ai/document/agents-quickstart)
+- [Makers Models](https://pages.edgeone.ai/document/models)
+
+## License
+
+MIT.
