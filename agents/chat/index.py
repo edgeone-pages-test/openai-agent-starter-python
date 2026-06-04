@@ -109,8 +109,8 @@ async def handler(context: Any) -> AsyncGenerator[str, None]:
       - SDK calls session.get_items() to inject history
       - SDK calls session.add_items() to persist assistant replies and tool results
     """
-    request = getattr(context, "request", None)
-    body = getattr(request, "body", None)
+    request = context.request
+    body = request.body
     message = body.get("message") if isinstance(body, dict) else None
 
     if not message:
@@ -119,12 +119,11 @@ async def handler(context: Any) -> AsyncGenerator[str, None]:
         return
 
     # Session for memory persistence
-    cid = getattr(context, "conversation_id", None)
-    store = getattr(context, "store", None)
-    session = store.openai_session(cid) if store else None
+    cid = context.conversation_id
+    session = context.store.openai_session(cid) if cid else None
 
     # Cancel signal (asyncio.Event), set when /chat/stop is called
-    cancel_signal = getattr(request, "signal", None) or asyncio.Event()
+    cancel_signal = request.signal
     stopped = False
 
     try:
