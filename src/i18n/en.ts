@@ -34,6 +34,18 @@ const en = {
   "debug.empty": "Waiting for SSE events...",
   "debug.emptyHint": "After sending a message, all raw backend data will be displayed here.",
 
+  // Conversation sidebar
+  "sidebar.label": "Conversation list",
+  "sidebar.title": "Chats",
+  "sidebar.newChat": "New chat",
+  "sidebar.loading": "Loading conversations...",
+  "sidebar.loadMore": "Load more",
+  "sidebar.loadingMore": "Loading...",
+  "sidebar.emptyTitle": "No conversations yet",
+  "sidebar.emptyHint": "Click \"New chat\" to start your first conversation.",
+  "sidebar.delete": "Delete conversation",
+  "sidebar.deleteConfirm": "Permanently delete this conversation? This cannot be undone.",
+
   // Language toggle
   "lang.switch": "中文",
 } as const;

@@ -118,8 +118,60 @@ async def handler(context: Any) -> AsyncGenerator[str, None]:
         yield sse_event("done", {})
         return
 
+    # Accept both camelCase (chat handler historical convention) and snake_case
+    # (cloud-functions convention) as a body field name for the user id.
+    raw_user_id = ""
+    if isinstance(body, dict):
+        raw_user_id = body.get("userId") or body.get("user_id") or ""
+    user_id = str(raw_user_id).strip() or None
+
     # Session for memory persistence
     cid = context.conversation_id
+
+    logger.log(f"[request] cid={cid}, uid={user_id or '-'}, message={message[:50]!r}")
+
+    # Write a user-indexed copy of the user message so /conversations
+    # (which scans the user_conversation_index prefix) can list this thread.
+    # The OpenAI Agents SDK Session adapter does NOT pass user_id when it
+    # persists turns, so without this manual write the user index stays
+    # empty and list_conversations(user_id=...) returns []. The duplicate
+    # is filtered out of /history because that route already drops items
+    # marked with metadata.agent_sdk_session.
+    # ── DEBUG: surface user-index write decisions in dev-server console.
+    # Remove these `[user-index]` log lines once the sidebar listing is
+    # confirmed working end-to-end. ─────────────────────────────────────
+    body_keys_preview = list(body.keys()) if isinstance(body, dict) else None
+    logger.log(
+        f"[user-index] body keys={body_keys_preview!r} "
+        f"raw_user_id={raw_user_id!r} normalized_user_id={user_id!r} cid={cid!r}"
+    )
+    if user_id and cid:
+        try:
+            # NOTE: the Python store.append_message() does NOT accept a
+            # `message_id` kwarg (unlike the TS counterpart) — the SDK
+            # auto-generates one. Passing it raises TypeError, which
+            # silently kills the user-index write.
+            msg_id = await context.store.append_message(
+                conversation_id=cid,
+                role="user",
+                content=message,
+                user_id=user_id,
+            )
+            logger.log(
+                f"[user-index] WROTE user-indexed message: cid={cid} "
+                f"user_id={user_id} msg_id={msg_id!r}"
+            )
+        except Exception as e:
+            # Non-fatal — chat itself should keep working even if the
+            # user-index write fails.
+            logger.error(f"[user-index] FAILED to write user index: {type(e).__name__}: {e}")
+    else:
+        logger.log(
+            f"[user-index] SKIPPED user-index write: user_id={user_id!r} cid={cid!r} "
+            f"(both must be truthy to trigger the write — this is why "
+            f"/conversations would return empty for this user)"
+        )
+
     session = context.store.openai_session(cid) if cid else None
 
     # Cancel signal (asyncio.Event), set when /chat/stop is called

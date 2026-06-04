@@ -34,6 +34,18 @@ const zh = {
   "debug.empty": "等待 SSE 事件...",
   "debug.emptyHint": "发送消息后，所有原始后端数据将在此处显示。",
 
+  // Conversation sidebar
+  "sidebar.label": "会话列表",
+  "sidebar.title": "会话",
+  "sidebar.newChat": "新建聊天",
+  "sidebar.loading": "正在加载会话...",
+  "sidebar.loadMore": "加载更多",
+  "sidebar.loadingMore": "加载中...",
+  "sidebar.emptyTitle": "暂无会话",
+  "sidebar.emptyHint": "点击「新建聊天」开始第一段对话。",
+  "sidebar.delete": "删除会话",
+  "sidebar.deleteConfirm": "确定要永久删除这个会话吗？此操作不可恢复。",
+
   // Language toggle
   "lang.switch": "English",
 } as const;
