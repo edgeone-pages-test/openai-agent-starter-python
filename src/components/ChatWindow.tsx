@@ -21,6 +21,12 @@ export default function ChatWindow({ messages, loading }: Props) {
   }, [messages, loading]);
 
   const lastMsg = messages[messages.length - 1];
+  /**
+   * Three-dot typing row only fills the "waiting for first token" gap.
+   * Once the assistant bubble has any content, the in-bubble streamingCaret
+   * takes over the "still working" signal — so we never end up with two
+   * stacked bot bubbles for the same in-flight turn.
+   */
   const showTypingIndicator = loading && !(lastMsg?.role === 'assistant' && lastMsg.content.length > 0);
 
   return (

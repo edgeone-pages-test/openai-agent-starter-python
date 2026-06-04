@@ -14,7 +14,7 @@ const en = {
 
   // Preset questions
   "preset.1": "What is the weather like in Beijing now? Any clothing suggestions?",
-  "preset.2": "Translate \"Hello, welcome to Beijing!\" into English and count the characters.",
+  "preset.2": "Translate \"Hello, welcome to Beijing!\" into Chinese and count the characters.",
 
   // Tool indicators
   "tool.weather": "Weather",

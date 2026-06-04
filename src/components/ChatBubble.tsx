@@ -19,7 +19,7 @@ export default memo(function ChatBubble({ message }: Props) {
         {isUser ? (
           message.content
         ) : (
-          <div className={styles.markdown}>
+          <div className={`${styles.markdown} ${message.streaming ? styles.markdownStreaming : ''}`}>
             <Markdown>{message.content}</Markdown>
           </div>
         )}
