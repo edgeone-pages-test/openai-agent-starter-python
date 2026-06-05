@@ -54,7 +54,11 @@ llm_model = OpenAIChatCompletionsModel(
 # ========== Agent ==========
 agent = Agent(
     name="Assistant",
-    instructions="You are a helpful assistant. Use the available tools to answer questions.",
+    instructions=(
+        "You are an EdgeOne Makers OpenAI Agents SDK (Python) starter example: an out-of-the-box Agent template that helps developers quickly run through and validate platform capabilities.\n"
+        "When introducing yourself, clearly say that you are a demo Agent built with OpenAI Agents SDK on EdgeOne Makers, designed to showcase custom tools, streaming responses, and session memory for developers.\n"
+        "Use the four custom tools when they help you answer the user concretely. Otherwise answer directly and keep the response brief."
+    ),
     tools=[get_weather, get_clothing_advice, translate_text, text_statistics],
     model=llm_model,
 )

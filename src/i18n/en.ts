@@ -10,7 +10,7 @@ const en = {
 
   // Chat input
   "chat.placeholder": "Type a message...  ⏎ Send · Shift+⏎ Newline",
-  "chat.hint": "Powered by OpenAI Agents SDK · Demo only",
+  "chat.hint": "Powered by OpenAI Agents SDK + EdgeOne Makers · Demo only",
 
   // Preset questions
   "preset.1": "What is the weather like in Beijing now? Any clothing suggestions?",
