@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import type { Message } from '../types';
 import Markdown from 'react-markdown';
+import { useT } from '../i18n';
 import styles from './ChatBubble.module.css';
 
 interface Props {
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export default memo(function ChatBubble({ message }: Props) {
+  const { lang } = useT();
   const isUser = message.role === 'user';
 
   if (!isUser && !message.content) return null;
@@ -24,10 +26,10 @@ export default memo(function ChatBubble({ message }: Props) {
           </div>
         )}
         <span className={styles.time}>
-          {new Date(message.timestamp).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
+          {new Date(message.timestamp).toLocaleTimeString(lang === 'zh' ? 'zh-CN' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
         </span>
       </div>
-      {isUser && <div className={`${styles.avatar} ${styles.userAvatar}`}>你</div>}
+      {isUser && <div className={`${styles.avatar} ${styles.userAvatar}`}>U</div>}
     </div>
   );
 });

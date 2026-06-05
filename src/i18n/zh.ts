@@ -46,6 +46,11 @@ const zh = {
   "sidebar.delete": "删除会话",
   "sidebar.deleteConfirm": "确定要永久删除这个会话吗？此操作不可恢复。",
 
+  // Aria labels (button hover/screen-reader)
+  "aria.send": "发送",
+  "aria.clearHistory": "清除历史",
+  "aria.stopGeneration": "停止生成",
+
   // Language toggle
   "lang.switch": "English",
 } as const;

@@ -46,6 +46,11 @@ const en = {
   "sidebar.delete": "Delete conversation",
   "sidebar.deleteConfirm": "Permanently delete this conversation? This cannot be undone.",
 
+  // Aria labels (button hover/screen-reader)
+  "aria.send": "Send",
+  "aria.clearHistory": "Clear history",
+  "aria.stopGeneration": "Stop generation",
+
   // Language toggle
   "lang.switch": "中文",
 } as const;
