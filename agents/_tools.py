@@ -24,9 +24,9 @@ def get_weather(city: Annotated[str, "The city to get weather for"]) -> str:
     #   return resp.text
     mock_weather = {
         "city": city,
-        "condition": "晴天",
+        "condition": "Sunny",
         "temperature": {"min": 18, "max": 25, "unit": "°C"},
-        "wind": "微风",
+        "wind": "Light breeze",
     }
     return json.dumps(mock_weather, ensure_ascii=False)
 
@@ -38,10 +38,10 @@ def get_clothing_advice(weather: Annotated[str, "The weather description (JSON o
     # TODO: Replace with more sophisticated logic or an external service
     # Basic temperature-aware advice based on input
     if re.search(r"(3[0-9]|4[0-9])\s*°", weather):
-        return "天气较热，建议穿短袖、短裤，注意防晒和补水。"
+        return "It's hot outside — wear a T-shirt and shorts, and remember sunscreen and water."
     if re.search(r"(-\d|[0-9])(?=\s*°)", weather):
-        return "天气较冷，建议穿羽绒服或厚外套，搭配围巾和手套。"
-    return "建议穿轻薄长袖外套，搭配休闲裤和运动鞋，适合外出活动。"
+        return "It's cold — wear a down jacket or heavy coat, plus a scarf and gloves."
+    return "A light long-sleeve jacket with casual pants and sneakers is a comfortable choice for going out."
 
 
 # ========== Tool: Translate Text ==========

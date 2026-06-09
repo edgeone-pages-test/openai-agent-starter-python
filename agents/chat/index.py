@@ -2,15 +2,15 @@
 Agent handler — EdgeOne Makers
 ========================================
 
-文件路径 agents/chat/index.py 自动映射到  **POST /chat**
-（EdgeOne Makers 的路由约定：目录名即路由名，index 为默认入口）
+The file path agents/chat/index.py is auto-mapped to **POST /chat**.
+(EdgeOne Makers convention: directory name = route name, `index` is the default entry.)
 
-context 约定：
-    context.request.body    — dict，请求体
-    context.request.signal  — asyncio.Event，当 /chat/stop 被调用时 set
-    context.conversation_id — 会话 ID
-    context.run_id          — 本次运行 ID
-    context.store           — EdgeOne 内置 store，提供 openai_session() 等方法
+`context` contract:
+    context.request.body    — dict, request body
+    context.request.signal  — asyncio.Event, set when /chat/stop is called
+    context.conversation_id — conversation ID
+    context.run_id          — run ID for this invocation
+    context.store           — EdgeOne built-in store; provides openai_session() and friends
 """
 
 from typing import Any, AsyncGenerator
@@ -107,7 +107,7 @@ async def _event_stream(
 
 # ========== Core Handler ==========
 async def handler(context: Any) -> AsyncGenerator[str, None]:
-    """EdgeOne Makers 入口。
+    """EdgeOne Makers entry point.
 
     Uses OpenAI Agents SDK session for automatic memory:
       - SDK calls session.get_items() to inject history
