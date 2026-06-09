@@ -46,7 +46,7 @@ llm_client = AsyncOpenAI(
 )
 
 llm_model = OpenAIChatCompletionsModel(
-    model=os.getenv("AI_GATEWAY_MODEL", "@makers/hy3-preview"),
+    model=os.getenv("AI_GATEWAY_MODEL", "@makers/deepseek-v4-flash"),
     openai_client=llm_client,
 )
 
