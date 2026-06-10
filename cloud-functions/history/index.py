@@ -34,7 +34,12 @@ final answer. They all share the same `run_id`. This handler:
   2. sorts the survivors by `created_at`
   3. merges consecutive assistant fragments with the same `run_id` into
      a single Message so the UI renders one bubble per turn
+  4. folds adjacent duplicate bubbles, which can happen because chat writes
+     a user-index copy for the sidebar and the OpenAI session writes the
+     same user input for model memory
 """
+
+from __future__ import annotations
 
 import json
 import os
@@ -144,6 +149,21 @@ def _merge_assistant_fragments(items: list[tuple[dict, str | None]]) -> list[dic
     return merged
 
 
+def _dedupe_adjacent(messages: list[dict]) -> list[dict]:
+    """Drop adjacent display duplicates after history normalization."""
+    deduped: list[dict] = []
+    for msg in messages:
+        prev = deduped[-1] if deduped else None
+        if (
+            prev is not None
+            and prev.get("role") == msg.get("role")
+            and prev.get("content") == msg.get("content")
+        ):
+            continue
+        deduped.append(msg)
+    return deduped
+
+
 class handler(BaseHTTPRequestHandler):
     def _write_json(self, status: int, payload: dict) -> None:
         body = json.dumps(payload, ensure_ascii=False, default=str).encode("utf-8")
@@ -170,7 +190,7 @@ class handler(BaseHTTPRequestHandler):
             history = store.get_messages(conversation_id, limit=100, order="asc") or []
 
             visible = [pair for record in history if (pair := _to_message(record))]
-            messages = _merge_assistant_fragments(visible)
+            messages = _dedupe_adjacent(_merge_assistant_fragments(visible))
 
             elapsed = int((time.time() - start) * 1000)
             logger.log(
