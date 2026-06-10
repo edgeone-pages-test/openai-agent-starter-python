@@ -18,6 +18,7 @@ import ChatInput from './components/ChatInput';
 import DebugPanel from './components/DebugPanel';
 import CodeViewer from './components/CodeViewer';
 import ConversationSidebar from './components/ConversationSidebar';
+import GitHubLink from './components/GitHubLink';
 import { I18nProvider, LangToggle, useT, MessageKeys } from './i18n';
 import { deleteSnapshot, loadSnapshot, saveSnapshot } from './lib/chatUiStore';
 import styles from './App.module.css';
@@ -599,6 +600,7 @@ function AppInner() {
           )}
         </div>
       </div>
+      <GitHubLink />
     </div>
   );
 }
