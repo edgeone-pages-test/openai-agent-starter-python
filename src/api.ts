@@ -50,46 +50,33 @@ export async function fetchConversationHistory(
   const startTime = Date.now();
   console.log(`[History] Request start time: ${new Date(startTime).toLocaleString()}`);
 
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      const res = await fetch(API.history, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ conversation_id: conversationId, user_id: userId }),
-      });
+  try {
+    const res = await fetch(API.history, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ conversation_id: conversationId, user_id: userId }),
+    });
 
-      // 409 = Active request on same conversation (React StrictMode double-render), retry shortly
-      if (res.status === 409) {
-        await new Promise(r => setTimeout(r, 500));
-        continue;
-      }
-
-      if (!res.ok) {
-        const endTime = Date.now();
-        console.log(`[History] Request end time: ${new Date(endTime).toLocaleString()}`);
-        console.log(`[History] Total time: ${endTime - startTime}ms`);
-        return [];
-      }
-
-      const data = await res.json().catch(() => null) as { messages?: Message[] } | null;
+    if (!res.ok) {
       const endTime = Date.now();
       console.log(`[History] Request end time: ${new Date(endTime).toLocaleString()}`);
       console.log(`[History] Total time: ${endTime - startTime}ms`);
-      return Array.isArray(data?.messages) ? data.messages : [];
-    } catch {
-      const endTime = Date.now();
-      console.log(`[History] Request end time: ${new Date(endTime).toLocaleString()}`);
-      console.log(`[History] Total time: ${endTime - startTime}ms (aborted with error)`);
       return [];
     }
-  }
 
-  const endTime = Date.now();
-  console.log(`[History] Request end time: ${new Date(endTime).toLocaleString()}`);
-  console.log(`[History] Total time: ${endTime - startTime}ms (retries exhausted)`);
-  return [];
+    const data = await res.json().catch(() => null) as { messages?: Message[] } | null;
+    const endTime = Date.now();
+    console.log(`[History] Request end time: ${new Date(endTime).toLocaleString()}`);
+    console.log(`[History] Total time: ${endTime - startTime}ms`);
+    return Array.isArray(data?.messages) ? data.messages : [];
+  } catch {
+    const endTime = Date.now();
+    console.log(`[History] Request end time: ${new Date(endTime).toLocaleString()}`);
+    console.log(`[History] Total time: ${endTime - startTime}ms (aborted with error)`);
+    return [];
+  }
 }
 
 /**
