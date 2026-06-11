@@ -59,7 +59,7 @@ openAI-agent-starter-python/
 │   ├── chat/stop.py                # POST /chat/stop — abort active run
 │   ├── _logger.py                  # Logger utility (private)
 │   └── _tools.py                   # Agent tool definitions (private)
-├── cloud-functions/                 # Stateless EdgeOne Pages Python cloud functions
+├── cloud-functions/                 # Stateless EdgeOne Makers Python cloud functions
 │   ├── history/index.py            # POST /history — load conversation messages
 │   └── _logger.py                  # Logger utility
 ├── src/                             # React + Vite + TypeScript frontend

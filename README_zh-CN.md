@@ -59,7 +59,7 @@ openAI-agent-starter-python/
 │   ├── chat/stop.py                # POST /chat/stop —— 中断当前 agent
 │   ├── _logger.py                  # 日志工具（私有）
 │   └── _tools.py                   # Agent 工具定义（私有）
-├── cloud-functions/                 # 无状态的 EdgeOne Pages Python cloud functions
+├── cloud-functions/                 # 无状态的 EdgeOne Makers Python cloud functions
 │   ├── history/index.py            # POST /history —— 拉取对话消息
 │   └── _logger.py                  # 日志工具
 ├── src/                             # React + Vite + TypeScript 前端
