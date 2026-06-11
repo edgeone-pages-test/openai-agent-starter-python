@@ -134,16 +134,28 @@ async def handler(context: Any) -> AsyncGenerator[str, None]:
 
     logger.log(f"[request] cid={cid}, uid={user_id or '-'}, message={message[:50]!r}")
 
-    # Write a user-indexed copy of the user message so /conversations
-    # (which scans the user_conversation_index prefix) can list this thread.
-    # The OpenAI Agents SDK Session adapter does NOT pass user_id when it
-    # persists turns, so without this manual write the user index stays
-    # empty and list_conversations(user_id=...) returns []. The duplicate
-    # is filtered out of /history because that route already drops items
-    # marked with metadata.agent_sdk_session.
-    # ── DEBUG: surface user-index write decisions in dev-server console.
-    # Remove these `[user-index]` log lines once the sidebar listing is
-    # confirmed working end-to-end. ─────────────────────────────────────
+    # Write a user-indexed copy of the user message ONLY on the first turn of
+    # this conversation, so /conversations (which scans the
+    # user_conversation_index prefix) can list this thread.
+    #
+    # Why first-turn-only:
+    #   - The OpenAI Agents SDK Session adapter does NOT pass user_id when it
+    #     persists turns, so without a user-indexed write the user index stays
+    #     empty and list_conversations(user_id=...) returns [].
+    #   - But the index lives at the (user_id, conversation_id) level — once
+    #     a single message has been written under this user_id, the
+    #     conversation is reachable. Writing a user-indexed copy on every turn
+    #     just produces duplicates that downstream consumers have to dedupe
+    #     (see cloud-functions/conversations/index.py and history/index.py)
+    #     and surfaces a duplicated user message in OpenAI Agents SDK traces
+    #     because the SDK's session.get_items() will re-feed it as input
+    #     alongside the new `message` argument.
+    #   - We therefore probe with get_messages(limit=1); if the conversation
+    #     already has any record, the index is established and we skip.
+    #
+    # The /history route already filters by metadata.agent_sdk_session and
+    # dedupes adjacent items, so the chat window stays clean either way —
+    # but the trace dashboard shows raw SDK input, hence the visible doubling.
     body_keys_preview = list(body.keys()) if isinstance(body, dict) else None
     logger.log(
         f"[user-index] body keys={body_keys_preview!r} "
@@ -151,24 +163,44 @@ async def handler(context: Any) -> AsyncGenerator[str, None]:
     )
     if user_id and cid:
         try:
-            # NOTE: the Python store.append_message() does NOT accept a
-            # `message_id` kwarg (unlike the TS counterpart) — the SDK
-            # auto-generates one. Passing it raises TypeError, which
-            # silently kills the user-index write.
-            msg_id = await context.store.append_message(
-                conversation_id=cid,
-                role="user",
-                content=message,
-                user_id=user_id,
+            existing = await context.store.get_messages(
+                conversation_id=cid, limit=1
             )
-            logger.log(
-                f"[user-index] WROTE user-indexed message: cid={cid} "
-                f"user_id={user_id} msg_id={msg_id!r}"
-            )
+            already_indexed = bool(existing)
         except Exception as e:
-            # Non-fatal — chat itself should keep working even if the
-            # user-index write fails.
-            logger.error(f"[user-index] FAILED to write user index: {type(e).__name__}: {e}")
+            # If the probe fails, fall through to writing — better to leave
+            # a duplicate than to lose the user index entirely.
+            logger.error(
+                f"[user-index] probe failed: {type(e).__name__}: {e}; "
+                f"will write user-index entry anyway"
+            )
+            already_indexed = False
+
+        if already_indexed:
+            logger.log(
+                f"[user-index] SKIPPED user-index write: cid={cid} already has "
+                f"messages, user index for user_id={user_id!r} is established"
+            )
+        else:
+            try:
+                # NOTE: the Python store.append_message() does NOT accept a
+                # `message_id` kwarg (unlike the TS counterpart) — the SDK
+                # auto-generates one. Passing it raises TypeError, which
+                # silently kills the user-index write.
+                msg_id = await context.store.append_message(
+                    conversation_id=cid,
+                    role="user",
+                    content=message,
+                    user_id=user_id,
+                )
+                logger.log(
+                    f"[user-index] WROTE first-turn user-indexed message: cid={cid} "
+                    f"user_id={user_id} msg_id={msg_id!r}"
+                )
+            except Exception as e:
+                # Non-fatal — chat itself should keep working even if the
+                # user-index write fails.
+                logger.error(f"[user-index] FAILED to write user index: {type(e).__name__}: {e}")
     else:
         logger.log(
             f"[user-index] SKIPPED user-index write: user_id={user_id!r} cid={cid!r} "
