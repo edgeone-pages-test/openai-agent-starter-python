@@ -68,7 +68,7 @@ openAI-agent-starter-python/
 │   └── components/                 # ChatWindow, ChatInput, CodeViewer, ToolIndicators, ...
 ├── package.json                     # Frontend dependencies
 ├── requirements.txt                 # Python dependencies
-├── edgeone.json                     # framework=openai-sdk
+├── edgeone.json                     # framework=openai-agents-sdk
 ├── vite.config.ts
 ├── tsconfig.json
 └── .gitignore
