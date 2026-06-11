@@ -79,7 +79,7 @@ openAI-agent-starter-python/
 ## Resources
 
 - [EdgeOne Makers Agents — Documentation](https://pages.edgeone.ai/document/agents)
-- [EdgeOne Makers — Quick Start](https://pages.edgeone.ai/document/agents-quickstart)
+- [EdgeOne Makers — Quick Start](https://pages.edgeone.ai/document/agents-quick-start)
 - [Makers Models](https://pages.edgeone.ai/document/models)
 
 ## License
